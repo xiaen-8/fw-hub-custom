@@ -1,0 +1,10 @@
+services:
+  forward-widget-hub:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./data:/data
+    environment:
+      - SITE_URL=http://localhost:3000
+    restart: unless-stopped
