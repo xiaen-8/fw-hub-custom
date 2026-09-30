@@ -17,22 +17,25 @@ let _initPromise: Promise<void> | null = null;
 
 function isAlreadyExistsError(e: unknown): boolean {
   const msg = String((e as { message?: string })?.message ?? e);
-  return /already exists/i.test(msg);
+  return /already exists/i.test(msg) || /duplicate column/i.test(msg);
 }
 
 async function ensureSchema(d1: D1Database): Promise<void> {
-  // Split schema into individual statements — D1 exec may not handle multi-statement strings
+  // NOTE: d1.exec() splits its input on newlines, which mangles multi-line
+  // CREATE TABLE statements ("incomplete input"). Always run single
+  // statements via prepare().run() instead.
   const statements = SCHEMA
     .split(";")
     .map((s) => s.trim())
     .filter((s) => s.length > 0);
   for (const sql of statements) {
-    try { await d1.exec(sql + ";"); } catch (e) {
+    try { await d1.prepare(sql).run(); } catch (e) {
       if (!isAlreadyExistsError(e)) throw e;
     }
   }
   for (const sql of MIGRATIONS) {
-    try { await d1.exec(sql); } catch (e) {
+    const stmt = sql.replace(/;\s*$/, "");
+    try { await d1.prepare(stmt).run(); } catch (e) {
       if (!isAlreadyExistsError(e)) throw e;
     }
   }

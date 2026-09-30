@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseFormData } from "@/lib/form";
 import { getBackendDb, getBackendStore } from "@/lib/backend";
 import { verifyAdmin } from "@/lib/admin-auth";
 import { parseWidgetMetadata } from "@/lib/parser";
@@ -19,7 +20,7 @@ export async function PUT(
 
   if (!mod) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-  const formData = await request.formData();
+  const formData = await parseFormData(request);
   const file = formData.get("file") as File | null;
   if (!file) return NextResponse.json({ error: "No file" }, { status: 400 });
 

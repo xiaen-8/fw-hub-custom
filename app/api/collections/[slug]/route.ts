@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseFormData } from "@/lib/form";
 import { getBackendDb, getBackendStore } from "@/lib/backend";
 import { extractToken, authenticateToken, checkRateLimit } from "@/lib/auth";
 
@@ -44,7 +45,7 @@ export async function PUT(
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  const formData = await request.formData();
+  const formData = await parseFormData(request);
   const title = formData.get("title") as string | null;
   const description = formData.get("description") as string | null;
   const iconFile = formData.get("icon") as File | null;

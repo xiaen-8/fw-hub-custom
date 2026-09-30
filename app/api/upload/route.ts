@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseFormData } from "@/lib/form";
 import { nanoid } from "nanoid";
 import { getBackendDb, getBackendStore } from "@/lib/backend";
 import { generateToken, hashToken, getTokenPrefix } from "@/lib/auth";
@@ -173,7 +174,7 @@ async function downloadAndStoreWidget(
 
 export async function POST(request: NextRequest) {
   try {
-    const formData = await request.formData();
+    const formData = await parseFormData(request);
     const files = formData.getAll("files") as File[];
     const remoteUrl = formData.get("url") as string | null;
     const token = formData.get("token") as string | null;

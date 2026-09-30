@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { parseFormData } from "@/lib/form";
 import { nanoid } from "nanoid";
 import { getBackendDb, getBackendStore } from "@/lib/backend";
 import { extractToken, authenticateToken, checkRateLimit } from "@/lib/auth";
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
   const auth = await authenticateToken(token);
   if (!auth) return NextResponse.json({ error: "Invalid token" }, { status: 401 });
 
-  const formData = await request.formData();
+  const formData = await parseFormData(request);
   const title = ((formData.get("title") as string) || "").trim();
   const description = ((formData.get("description") as string) || "").trim();
   if (!title) return NextResponse.json({ error: "标题不能为空" }, { status: 400 });
